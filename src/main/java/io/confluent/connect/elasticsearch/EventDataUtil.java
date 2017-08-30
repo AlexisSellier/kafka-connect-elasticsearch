@@ -29,8 +29,6 @@ import java.util.regex.Pattern;
 
 public class EventDataUtil {
   private static final Logger log = LoggerFactory.getLogger(EventDataUtil.class);
-
-  private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   private static final Pattern IPV4_PATTERN = Pattern.compile(
@@ -55,23 +53,28 @@ public class EventDataUtil {
       boolean enabled,
       String index,
       ObjectNode node,
-      String fieldName) {
+      String fieldName,
+      String format) {
 
     if (!enabled) {
       return index;
     }
 
-    return index + "-" + fetchFormattedEventDate(node, fieldName);
+    return index + "-" + fetchFormattedEventDate(node, fieldName, format);
   }
 
-  protected static String fetchFormattedEventDate(ObjectNode node, String fieldName) {
+    protected static String fetchFormattedEventDate(ObjectNode node, String fieldName, String dateFormat) {
     if (node != null && node.has(fieldName)) {
       Date time = new Date(node.get(fieldName).asLong());
-      return dateFormat.format(time);
+      SimpleDateFormat format = new SimpleDateFormat(dateFormat);
+      return format.format(time);
     }
 
     return "";
   }
+    protected static String fetchFormattedEventDate(ObjectNode node, String fieldName) {
+	return EventDataUtil.fetchFormattedEventDate(node, fieldName, "yyyyMMdd");
+    }
 
   protected static String fetchEventType(ObjectNode node) {
     if (node != null && node.has("name")) {
@@ -86,8 +89,12 @@ public class EventDataUtil {
     return "unknown_event_type";
   }
 
+    protected static String getDateFromSinkRecord(SinkRecord record, String dateFormat) {
+	SimpleDateFormat format = new SimpleDateFormat(dateFormat);
+	return format.format(record.timestamp());
+    }
   protected static String getDateFromSinkRecord(SinkRecord record) {
-    return dateFormat.format(record.timestamp());
+      return EventDataUtil.getDateFromSinkRecord(record, "yyyyMMdd");
   }
-
+    
 }

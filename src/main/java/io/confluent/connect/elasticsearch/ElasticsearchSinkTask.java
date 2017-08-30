@@ -94,6 +94,7 @@ public class ElasticsearchSinkTask extends SinkTask {
       int maxRetry =
           config.getInt(ElasticsearchSinkConnectorConfig.MAX_RETRIES_CONFIG);
 
+      String dateFormat = config.getString(ElasticsearchSinkConnectorConfig.INDEX_DATE_FORMAT_CONFIG);
       if (client != null) {
         this.client = client;
       } else {
@@ -123,7 +124,8 @@ public class ElasticsearchSinkTask extends SinkTask {
           .setBatchSize(batchSize)
           .setLingerMs(lingerMs)
           .setRetryBackoffMs(retryBackoffMs)
-          .setMaxRetry(maxRetry);
+          .setMaxRetry(maxRetry)
+	  .setDateFormat(dateFormat);
 
       writer = builder.build();
       writer.start();

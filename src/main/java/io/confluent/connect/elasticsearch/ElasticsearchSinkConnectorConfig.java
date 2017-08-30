@@ -107,7 +107,9 @@ public class ElasticsearchSinkConnectorConfig extends AbstractConfig {
       + TOPIC_SCHEMA_IGNORE_CONFIG + "`` to override as ``true`` for specific topics.";
   private static final String TOPIC_SCHEMA_IGNORE_DOC =
       "List of topics for which ``" + SCHEMA_IGNORE_CONFIG + "`` should be ``true``.";
-
+    
+    public static final String INDEX_DATE_FORMAT_CONFIG = "index.date.format";
+    private static final String INDEX_DATE_FORMAT_DOC = "Date format for index name timestamp based";
   protected static ConfigDef baseConfigDef() {
     final ConfigDef configDef = new ConfigDef();
     addConnectorConfigs(configDef);
@@ -302,7 +304,17 @@ public class ElasticsearchSinkConnectorConfig extends AbstractConfig {
         ++order,
         Width.LONG,
         "Topics for 'Ignore Schema' mode"
-      );
+	     ).define(
+		      INDEX_DATE_FORMAT_CONFIG,
+		      Type.STRING,
+		      "yyyyMMdd",
+		      Importance.LOW,
+		      INDEX_DATE_FORMAT_DOC,
+		      group,
+		      ++order,
+		      Width.LONG,
+		      "Date for index timestamp based"
+		      );
   }
 
   public static final ConfigDef CONFIG = baseConfigDef();

@@ -52,8 +52,8 @@ public class ElasticsearchWriter {
   private final Set<String> ignoreSchemaTopics;
   private final Map<String, String> topicToIndexMap;
   private final long flushTimeoutMs;
-  private final BulkProcessor<IndexableRecord, ?> bulkProcessor;
-
+    private final BulkProcessor<IndexableRecord, ?> bulkProcessor;
+    private final String dateFormat;
   private final Set<String> existingMappings;
 
   ElasticsearchWriter(
@@ -74,7 +74,8 @@ public class ElasticsearchWriter {
       int batchSize,
       long lingerMs,
       int maxRetries,
-      long retryBackoffMs
+      long retryBackoffMs,
+      String dateFormat
   ) {
     this.client = client;
     this.type = type;
@@ -87,7 +88,7 @@ public class ElasticsearchWriter {
     this.ignoreSchemaTopics = ignoreSchemaTopics;
     this.topicToIndexMap = topicToIndexMap;
     this.flushTimeoutMs = flushTimeoutMs;
-
+    this.dateFormat = dateFormat;
     bulkProcessor = new BulkProcessor<>(
         new SystemTime(),
         new BulkIndexingClient(client, bulkUriParameters),
@@ -121,11 +122,16 @@ public class ElasticsearchWriter {
     private long lingerMs;
     private int maxRetry;
     private long retryBackoffMs;
-
+      private String dateFormat;
     public Builder(JestClient client) {
       this.client = client;
     }
 
+      public Builder setDateFormat(String dateFormat) {
+	  this.dateFormat = dateFormat;
+	  return this;
+	      
+      }
     public Builder setType(String type) {
       this.type = type;
       return this;
@@ -222,7 +228,8 @@ public class ElasticsearchWriter {
           batchSize,
           lingerMs,
           maxRetry,
-          retryBackoffMs
+          retryBackoffMs,
+	  dateFormat
       );
     }
   }
@@ -237,8 +244,7 @@ public class ElasticsearchWriter {
 
       ObjectNode node = EventDataUtil.sinkRecordToJsonNode(sinkRecord);
       String eventType = isDynamicType ? EventDataUtil.fetchEventType(node) : type;
-
-      index = EventDataUtil.toDateIndex(indexTimestampEnabled, index, node, indexTimestampField);
+      index = EventDataUtil.toDateIndex(indexTimestampEnabled, index, node, indexTimestampField, this.dateFormat);
 
       if (!ignoreSchema && !existingMappings.contains(index)) {
         try {
