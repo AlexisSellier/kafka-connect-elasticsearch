@@ -65,7 +65,7 @@ public class EventDataUtil {
 
     protected static String fetchFormattedEventDate(ObjectNode node, String fieldName, String dateFormat) {
     if (node != null && node.has(fieldName)) {
-	Date time = new Date(node.get(fieldName).asDouble() / 1000);
+	Date time = new Date((long)(node.get(fieldName).asDouble() / 1000));
       SimpleDateFormat format = new SimpleDateFormat(dateFormat);
       return format.format(time);
     }
