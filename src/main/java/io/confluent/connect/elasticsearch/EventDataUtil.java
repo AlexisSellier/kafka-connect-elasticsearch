@@ -68,6 +68,8 @@ public class EventDataUtil {
 	Date time = new Date(node.get(fieldName).asLong() * 1000);
 	SimpleDateFormat format = new SimpleDateFormat(dateFormat);
 	return format.format(time);
+    } else {
+	log.warn("Cannot find fieldname " +  fieldName + " in objectnode");
     }
 
     return "";
